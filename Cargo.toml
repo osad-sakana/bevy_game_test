@@ -6,3 +6,7 @@ edition = "2024"
 [dependencies]
 bevy = { version = "0.18.1", features = ["mp3"] }
 rand = "0.9"
+getrandom = { version = "0.3", features = ["wasm_js"] }
+
+[target.wasm32-unknown-unknown.dependencies]
+getrandom = { version = "0.3", features = ["wasm_js"] }
