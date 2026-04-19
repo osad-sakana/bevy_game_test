@@ -15,16 +15,19 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin{
     fn build(&self, app: &mut App){
         app.add_systems(Startup, setup_player)
-            .add_systems(Update, (move_player, apply_velocity, clamp_position));
+            .add_systems(Update, (move_player, apply_velocity, clamp_position, flip_player));
     }
 }
 
-fn setup_player(mut commands: Commands){
+fn setup_player(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+){
     commands.spawn((
         Player,
         Velocity(Vec2::ZERO),
         Sprite{
-            color: Color::srgb(0.25, 0.75, 0.25),
+            image: asset_server.load("fish_blue_outline.png"),
             custom_size: Some(Vec2::new(PLAYER_SIZE, PLAYER_SIZE)),
             ..default()
         },
@@ -78,4 +81,18 @@ fn clamp_position(
 
     transform.translation.x = transform.translation.x.clamp(-half_w, half_w);
     transform.translation.y = transform.translation.y.clamp(-half_h, half_h);
+}
+
+fn flip_player(
+    keyboard: Res<ButtonInput<KeyCode>>,
+    mut query: Query<&mut Sprite, With<Player>>,
+){
+    let Ok(mut sprite) = query.single_mut() else { return; };
+
+    if keyboard.just_pressed(KeyCode::ArrowRight){
+        sprite.flip_x = false;
+    }
+    if keyboard.just_pressed(KeyCode::ArrowLeft){
+        sprite.flip_x = true;
+    }
 }
