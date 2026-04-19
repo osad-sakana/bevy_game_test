@@ -17,31 +17,7 @@ impl Plugin for CoinPlugin{
     fn build(&self, app: &mut App){
         app
             .add_systems(Startup, setup_coins)
-            .add_systems(Update, collect_coins);
-    }
-}
-
-fn setup_coins(
-    mut commands: Commands,
-    windows: Query<&Window>,
-){
-    let Ok(window) = windows.single() else { return; };
-    let half_w = window.width() / 2.0;
-    let half_h = window.height() / 2.0;
-
-    for _ in 0..COIN_COUNT{
-        let x = random_range(-half_w..half_w);
-        let y = random_range(-half_h..half_h);
-
-        commands.spawn((
-            Coin,
-            Sprite{
-                color: Color::srgb(1.0, 0.85, 0.0),
-                custom_size: Some(Vec2::new(COIN_SIZE, COIN_SIZE)),
-                ..default()
-            },
-            Transform::from_xyz(x, y, 0.0),
-        ));
+            .add_systems(Update, (collect_coins, respawn_coins));
     }
 }
 
@@ -71,4 +47,48 @@ fn collect_coins(
             score.0 += 1;
         }
     }
+}
+
+fn spawn_coins(
+    commands: &mut Commands,
+    window: &Window,
+){
+    let half_w = window.width() / 2.0;
+    let half_h = window.height() / 2.0;
+
+    for _ in 0..COIN_COUNT{
+        let x = random_range(-half_w..half_w);
+        let y = random_range(-half_h..half_h);
+
+        commands.spawn((
+            Coin,
+            Sprite{
+                color: Color::srgb(1.0, 0.85, 0.0),
+                custom_size: Some(Vec2::new(COIN_SIZE, COIN_SIZE)),
+                ..default()
+            },
+            Transform::from_xyz(x, y, 0.0),
+        ));
+    }
+}
+
+fn setup_coins(
+    mut commands: Commands,
+    windows: Query<&Window>,
+){
+    let Ok(window) = windows.single() else { return; };
+    spawn_coins(&mut commands, window);
+}
+
+fn respawn_coins(
+    mut commands: Commands,
+    coin_query: Query<&Coin>,
+    windows: Query<&Window>,
+){
+    if !coin_query.is_empty(){
+        return;
+    }
+
+    let Ok(window) = windows.single() else { return; };
+    spawn_coins(&mut commands, window);
 }
