@@ -23,6 +23,7 @@ impl Plugin for CoinPlugin{
 
 fn collect_coins(
     mut commands: Commands,
+    asset_server: Res<AssetServer>,
     mut score: ResMut<Score>,
     player_query: Query<&Transform, With<Player>>,
     mut coin_query: Query<(Entity, &mut Transform), (With<Coin>, Without<Player>)>,
@@ -45,6 +46,12 @@ fn collect_coins(
         if distance < hit_distance {
             commands.entity(coin_entiry).despawn();
             score.0 += 1;
+
+            // SE
+            commands.spawn((
+                AudioPlayer::new(asset_server.load("coin.mp3")),
+                PlaybackSettings::DESPAWN,
+            ));
         }
     }
 }
