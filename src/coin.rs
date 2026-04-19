@@ -4,6 +4,8 @@ use crate::player::{Player, PLAYER_SIZE};
 
 const COIN_SIZE: f32 = 20.0;
 const COIN_COUNT: usize = 10;
+const ATTRACT_RADIUS: f32 = 100.0;
+const ATTRACT_SPEED: f32 = 300.0;
 
 #[derive(Component)]
 pub struct Coin;
@@ -45,14 +47,20 @@ fn setup_coins(
 fn collect_coins(
     mut commands: Commands,
     player_query: Query<&Transform, With<Player>>,
-    coin_query: Query<(Entity, &Transform), With<Coin>>,
+    mut coin_query: Query<(Entity, &mut Transform), (With<Coin>, Without<Player>)>,
+    time: Res<Time>,
 ){
     let Ok(player_transform) = player_query.single() else { return; };
+    let player_pos = player_transform.translation;
 
-    for(coin_entiry, coin_transform) in &coin_query {
-        let distance = player_transform
-            .translation
-            .distance(coin_transform.translation);
+    for(coin_entiry, mut coin_transform) in &mut coin_query {
+        let coin_pos = coin_transform.translation;
+        let distance = player_pos.distance(coin_pos);
+
+        if distance < ATTRACT_RADIUS {
+            let direction = (player_pos - coin_pos).normalize();
+            coin_transform.translation += direction * ATTRACT_SPEED * time.delta_secs();
+        }
 
         let hit_distance = (PLAYER_SIZE + COIN_SIZE) / 2.0;
 
