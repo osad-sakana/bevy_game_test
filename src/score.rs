@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::timer::GameTimer;
 
 #[derive(Resource)]
 pub struct Score(pub u32);
@@ -37,8 +38,10 @@ struct ScoreText;
 
 fn update_score_ui(
     score: Res<Score>,
+    timer: Res<GameTimer>,
     mut query: Query<&mut Text, With<ScoreText>>,
 ){
     let Ok(mut text) = query.single_mut() else { return; };
-    **text = format!("Score: {}", score.0);
+    let remaining = (timer.0.remaining_secs() as u32).min(60);
+    **text = format!("Score: {}\nTime Left: {}", score.0, remaining);
 }

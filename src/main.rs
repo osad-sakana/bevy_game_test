@@ -2,12 +2,18 @@ mod player;
 mod coin;
 mod score;
 mod audio;
+mod game_state;
+mod timer;
+mod ui;
 
 use bevy::prelude::*;
 use player::PlayerPlugin;
 use coin::CoinPlugin;
 use score::ScorePlugin;
 use audio::AudioPlugin;
+use game_state::GameState;
+use timer::GameTimerPlugin;
+use ui::UiPlugin;
 
 fn main(){
     App::new()
@@ -16,6 +22,9 @@ fn main(){
         .add_plugins(CoinPlugin)
         .add_plugins(ScorePlugin)
         .add_plugins(AudioPlugin)
+        .add_plugins(GameTimerPlugin)
+        .add_plugins(UiPlugin)
+        .init_state::<GameState>()
         .add_systems(Startup, setup_camera)
         .run();
 }

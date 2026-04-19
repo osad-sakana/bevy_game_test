@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 const SPEED: f32 = 5000.0;
 const FRICTION: f32 = 0.85;
-pub const PLAYER_SIZE: f32 = 50.0;
+pub const PLAYER_SIZE: f32 = 100.0;
 
 #[derive(Component)]
 pub struct Player;
