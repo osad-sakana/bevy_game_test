@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use rand::random_range;
 use crate::player::{Player, PLAYER_SIZE};
+use crate::score::Score;
 
 const COIN_SIZE: f32 = 20.0;
 const COIN_COUNT: usize = 10;
@@ -46,6 +47,7 @@ fn setup_coins(
 
 fn collect_coins(
     mut commands: Commands,
+    mut score: ResMut<Score>,
     player_query: Query<&Transform, With<Player>>,
     mut coin_query: Query<(Entity, &mut Transform), (With<Coin>, Without<Player>)>,
     time: Res<Time>,
@@ -66,6 +68,7 @@ fn collect_coins(
 
         if distance < hit_distance {
             commands.entity(coin_entiry).despawn();
+            score.0 += 1;
         }
     }
 }
