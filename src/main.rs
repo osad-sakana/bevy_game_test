@@ -8,7 +8,7 @@ fn main(){
     App::new()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, setup)
-        .add_systems(Update, (move_player, apply_velocity))
+        .add_systems(Update, (move_player, apply_velocity, clamp_position))
         .run();
 }
 
@@ -69,4 +69,18 @@ fn apply_velocity(
         transform.translation.x += velocity.0.x * time.delta_secs();
         transform.translation.y += velocity.0.y * time.delta_secs();
     }
+}
+
+fn clamp_position(
+    mut query: Query<&mut Transform, With<Player>>,
+    windows: Query<&Window>,
+){
+    let Ok(window) = windows.single() else { return; };
+    let Ok(mut transform) = query.single_mut() else { return; };
+
+    let half_w = window.width() / 2.0 - PLAYER_SIZE / 2.0;
+    let half_h = window.height() / 2.0 - PLAYER_SIZE / 2.0;
+
+    transform.translation.x = transform.translation.x.clamp(-half_w, half_w);
+    transform.translation.y = transform.translation.y.clamp(-half_h, half_h);
 }
